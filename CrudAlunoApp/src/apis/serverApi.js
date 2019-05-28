@@ -8,7 +8,7 @@ const SERVER_URL = {
   thiago: "http://192.168.0.12:8000",
   advoga: "http://31.220.62.126:8000",
   club99: "http://31.220.59.226:8000",
-  fernando: "http://192.168.0.34:8003",
+  fernando: "http://192.168.0.34:8002",
   thome: "http://192.168.0.8:8000"
 }['fernando'];
 
