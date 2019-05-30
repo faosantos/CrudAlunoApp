@@ -3,14 +3,10 @@ import { store } from '../redux/store';
 
 const SERVER_URL = {
   local: "http://127.0.0.1:8000",
-  rafhome: "http://192.168.15.8:8000",
-  rafwork: "http://192.168.0.15:8000",
-  thiago: "http://192.168.0.12:8000",
-  advoga: "http://31.220.62.126:8000",
-  club99: "http://31.220.59.226:8000",
-  fernando: "http://192.168.0.34:8002",
-  thome: "http://192.168.0.8:8000"
-}['fernando'];
+  testApp: "http://192.168.15.10:8003",
+  fernando: "http://192.168.15.10:8002",
+  casa: "http://192.168.1.6:8000"
+}['testApp'];
 
 const SERVER_API = `${SERVER_URL}/api`;
 
