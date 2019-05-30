@@ -15,7 +15,7 @@ export default function showToast(toShow, type) {
 
   if (type == 'danger') {
     duration = 6000;
-    // position = 'top';
+    position = 'top';
   }
 
   if (text == null) {

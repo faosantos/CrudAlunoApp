@@ -11,11 +11,11 @@ import {
   Animated,
   Keyboard,
   StyleSheet,
-  WebView,
-  Alert
+  WebView
 } from 'react-native';
 
-import { Constants, Permissions, Notifications } from 'expo';
+import { Constants } from 'expo';
+
 import {
   Container,
   Button,
@@ -34,7 +34,7 @@ import {
 } from 'native-base';
 
 import { server } from '../../apis';
-import { showToast, geocode, storage } from '../../lib';
+import { showToast, geocode } from '../../lib';
 import Colors from './../../../native-base-theme/variables/commonColor.js';
 
 function EachInput({ textChange, type, value, error }) {
@@ -380,42 +380,27 @@ class BirthDate extends Component {
   }
   change() {
     let bd = { birthDate } = this.state;
-    Alert.alert(
-      'Esta é sua data de nascimento?', 
-      `Data: ${this.date(birthDate)}`,
-      [{text:'Sim', onPress: ()=> {
-        if (!bd || bd == '' || bd == " ")
-          return;
-        else
-          return this.setState({ error: '' },
-            () => this.props.changeState({ ...this.state, currentScreen: 'Finish' })
-          )
-      }}, {
-        text: 'Não', style: 'cancel'
-      }])
-    
-  }
-  componentDidMount(){
-    let myDate = this.DateDyn(18);
-    this.setState({ birthDate: myDate });
-  }
-  date = (date) =>{
-    return `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`
-  }
-  DateDyn = (age) => {
-    let dA = new Date(Date.now());
-    let dB = new Date(
-      dA.getFullYear() - age,
-      dA.getMonth(),
-      dA.getDate(),
-      dA.getHours(),
-      dA.getMinutes(),
-      dA.getSeconds(),
-      dA.getMilliseconds()
-    );
-    return dB;
+    if (!bd || bd == '' || bd == " ")
+      return;
+    else
+      return this.setState({ error: '' },
+        () => this.props.changeState({ ...this.state, currentScreen: 'Finish' })
+      )
   }
   render() {
+    let DateDyn = (age) => {
+      let dA = new Date(Date.now());
+      let dB = new Date(
+        dA.getFullYear() - age,
+        dA.getMonth(),
+        dA.getDate(),
+        dA.getHours(),
+        dA.getMinutes(),
+        dA.getSeconds(),
+        dA.getMilliseconds()
+      );
+      return dB;
+    }
     let setDate = (date) => {
       console.debug('BirthDate: ', date);
       this.setState({ birthDate: date });
@@ -424,15 +409,15 @@ class BirthDate extends Component {
       <View style={style.contentAround}>
         <Title>Qual sua idade?</Title>
         <DatePicker
-          defaultDate={this.DateDyn(18)}
-          maximumDate={this.DateDyn(18)}
-          minimumDate={this.DateDyn(71)}
+          defaultDate={DateDyn(18)}
+          maximumDate={DateDyn(18)}
+          minimumDate={DateDyn(71)}
           locale={"pt-br"}
           timeZoneOffsetInMinutes={undefined}
           modalTransparent={false}
           animationType={"fade"}
-          androidMode={'spinner'}
-          placeHolderText={this.date(this.DateDyn(18))}
+          androidMode={'default'}
+          placeHolderText="Selecionar Data"
           textStyle={style.btn}
           placeHolderTextStyle={style.btn}
           onDateChange={setDate}
@@ -451,7 +436,7 @@ class AcceptTerms extends Component {
         <View style={{ height: Dimensions.get('window').height * .85, width: '100%' }}>
           <Title>Termos de uso</Title>
           <WebView
-            source={{ uri: `${server.SERVER_URL}/termos` }}
+            source={{ uri: 'http://192.168.0.34:8003/termos' }} //tem que ser apontado para o end do meu servidor
             onLoadEnd={() => {
               this.setState({ webLoaded: true })
               this.forceUpdate();
@@ -506,25 +491,6 @@ export default class RegisterScreen extends Component {
     toConfirm: false,
     webLoaded: false
   }
-  async registerForNotifications() {
-    const { status: existingStatus } = await Permissions.getAsync(
-      Permissions.NOTIFICATIONS
-    );
-    let finalStatus = existingStatus;
-    if (existingStatus !== 'granted') {
-      const { status } = await Permissions.askAsync(
-        Permissions.NOTIFICATIONS
-      )
-      finalStatus = status;
-    }
-    if (finalStatus !== 'granted') {
-      return;
-    }
-    let token = await Notifications.getExpoPushTokenAsync();
-    await server.post('setExpoToken', {
-      token: token
-    });
-  }
   onSubmit = async () => {
     try {
       this.setState({ loading: true });
@@ -566,8 +532,7 @@ export default class RegisterScreen extends Component {
       if (resp.authenticated) {
         this.props.reduxActions.setUser(resp.user);
         this.props.reduxActions.setApiToken(resp.apiToken);
-        storage.saveState();
-
+        this.props.reduxActions.saveState();
         return this.props.navigation.navigate('BottomTabNavigator');
       } else if (resp.error) {
         if (!resp.fields) {

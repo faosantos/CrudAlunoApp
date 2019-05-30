@@ -10,8 +10,10 @@ import {
 } from 'native-base';
 import { Row, Grid } from 'react-native-easy-grid';
 import Icon from './Icon';
+import { server } from '../../apis';
+import { connect, states, actions } from '../../redux';
 
-export default class UserCard extends React.PureComponent {
+class UserCard extends React.PureComponent {
   state = {
     imgKey: 0
   }
@@ -37,8 +39,22 @@ export default class UserCard extends React.PureComponent {
     })
   }
 
-  gotoChatMessenger = () => {
-    this.props.navigation.navigate("ChatMessenger", { toUser: this.props.user });
+  favorite = async () => {
+    let user = this.props.user;
+    let favData = this.props.reduxStates.favoritesData;
+
+    if (user.fav == true) {
+      favData.splice(favData.indexOf(user), 1);
+      user.fav = false;
+      server.get('fav/remove/' + user.id);
+    } else {
+      user.fav = true;
+      favData.push(user);
+      server.get('fav/add/' + user.id);
+    }
+
+    this.props.reduxActions.setFavoritesData(favData);
+
   }
 
   render() {
@@ -56,6 +72,12 @@ export default class UserCard extends React.PureComponent {
               <Subtitle>{props.user.distance} km</Subtitle>
             </Row>
           </Grid>
+
+          <Right>
+            <Button transparent onPress={this.favorite}>
+              <Icon name={this.props.user.fav ? "heart" : "heart-empty"} style={{ fontSize: 32 }} />
+            </Button>
+          </Right>
         </CardItem>
         <CardItem cardBody>
           <Image
@@ -72,7 +94,7 @@ export default class UserCard extends React.PureComponent {
           <Button transparent onPress={this.showPhotoSlider}>
             <Icon name="photos" />
           </Button>
-          <Button transparent onPress={this.gotoChatMessenger}>
+          <Button transparent>
             <Icon name="chat" />
           </Button>
           <Button transparent onPress={this.gotoProfile}>
@@ -86,3 +108,4 @@ export default class UserCard extends React.PureComponent {
   }
 }
 
+export default connect(states, actions)(UserCard);

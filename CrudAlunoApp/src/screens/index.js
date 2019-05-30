@@ -9,10 +9,10 @@ import { feedRoutes } from './feed';
 import { searchRoutes } from './search';
 import { authRoutes } from './auth';
 import { favoritesRoutes } from './favorites';
-import { myProfileRoutes, otherProfileRoutes, settingsScreen, passwordRedefine } from './profile'
+import { myProfileRoutes, otherProfileRoutes } from './profile'
 import { Icon, MainHeader } from './comps';
 import { imageSliderRoutes } from './imageslider';
-import { chatRoutes, chatMessengerRoutes } from './chat';
+import { chatRoutes } from './chat';
 
 const bottomTabNavigator = createBottomTabNavigator(
   {
@@ -63,9 +63,6 @@ const bottomTabNavigator = createBottomTabNavigator(
 const mainRoutes = createStackNavigator(
   {
     BottomTabNavigator: bottomTabNavigator,
-    Settings: settingsScreen,
-    PasswordRedefine: passwordRedefine,
-    ChatMessenger: chatMessengerRoutes,
     OtherProfile: otherProfileRoutes,
     ImageSlider: imageSliderRoutes
   },
@@ -73,10 +70,7 @@ const mainRoutes = createStackNavigator(
     headerMode: 'float',
     defaultNavigationOptions: (props) => {
       if (props.navigation.state.routeName == 'BottomTabNavigator' ||
-        props.navigation.state.routeName == 'OtherProfile' ||
-        props.navigation.state.routeName == "Settings" ||
-        props.navigation.state.routeName == 'PasswordRedefine' ||
-        props.navigation.state.routeName == 'ChatMessenger') {
+        props.navigation.state.routeName == 'OtherProfile') {
         let auxRoutes = props.navigation.state.routes;
         let auxIndex = props.navigation.state.index;
         let canGoBack = false;

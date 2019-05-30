@@ -4,7 +4,6 @@ import UserCard from './UserCard';
 import { ImageGrid, ImageSlider } from './ImageGrid';
 import SearchBar from './SearchBar';
 import SpinnerModal from './SpinnerModal';
-import ErrorComponent from './ErrorComp';
 
 export {
   SearchBar,
@@ -13,8 +12,7 @@ export {
   UserCard,
   ImageGrid,
   ImageSlider,
-  SpinnerModal,
-  ErrorComponent
+  SpinnerModal
 };
 
 

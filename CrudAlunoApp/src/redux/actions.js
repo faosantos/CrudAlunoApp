@@ -1,123 +1,136 @@
 import { AsyncStorage } from 'react-native';
-import server from '../apis/serverApi';
-import { store } from './store';
 
-function modifyUser(state, user_id, callback) {
-  const { localData, searchData, favoritesData, chatData } = state;
 
-  const makeUserIdxArray = (array) => {
-    let idx = null;
-    let user = array.find((u, index) => {
-      if (u.id == user_id) {
-        idx = index;
-        return true;
+
+function createUsersObjectsRefs(state, newData) {
+
+  let setValues = (dst, src) => {
+    for (let k in src) {
+      if (typeof (src[k]) == 'object') {
+        if (dst[k] == undefined)
+          dst[k] = src[k];
+        else
+          setValues(dst[k], src[k]);
+      } else if (typeof (src[k]) == 'array') {
+        dst[k] = src[k].slice();
+      } else {
+        dst[k] = src[k];
       }
-      return false;
-    });
-    return { user, idx, array }
+    }
   }
 
-  const indexes = [
-    makeUserIdxArray(localData),
-    makeUserIdxArray(searchData),
-    makeUserIdxArray(favoritesData),
-    makeUserIdxArray(chatData)
-  ];
+  let usersObjects = state.usersObjects;
+  let references = [];
+  for (let i = 0; i < newData.length; ++i) {
+    const newUser = newData[i];
+    let found = usersObjects.find(u => u.id == newUser.id);
+    if (found) {
+      if (found !== newUser) {
+        let uoidx = usersObjects.indexOf(found);
+        setValues(usersObjects[uoidx], newUser);
+        references.push(usersObjects[uoidx]);
+      }
+    } else {
+      usersObjects.push(JSON.parse(JSON.stringify(newUser)));
+      references.push(usersObjects[usersObjects.length - 1]);
+    }
+  }
 
-  indexes.forEach(callback);
+  state.usersObjects = usersObjects;
+
+  return references;
 }
 
-function setState(state) {
-  return { type: 'SET_REDUX_STATE', data: state };
-}
-
-function setUser(user) {
+function setUser(dispatch, store, user) {
   let state = store.getState();
   state.user = user;
-  return { type: 'SET_REDUX_STATE', data: state };
+  dispatch({ type: 'SET_REDUX_STATE', data: state });
 }
 
-function setLocalData(localData) {
+function setLocalData(dispatch, store, localData) {
   let state = store.getState();
-  state.localData = localData;
-  return { type: 'SET_REDUX_STATE', data: state };
+  state.localData = createUsersObjectsRefs(state, localData);
+  dispatch({ type: 'SET_REDUX_STATE', data: state });
 }
 
-function setSearchData(searchData) {
+function setSearchData(dispatch, store, searchData) {
   let state = store.getState();
-  state.searchData = searchData;
-  return { type: 'SET_REDUX_STATE', data: state };
+  state.searchData = createUsersObjectsRefs(state, searchData);
+  dispatch({ type: 'SET_REDUX_STATE', data: state });
 }
 
-function setFavoritesData(favoritesData) {
+function setFavoritesData(dispatch, store, favoriteData) {
   let state = store.getState();
-  state.favoritesData = favoritesData;
-  return { type: 'SET_REDUX_STATE', data: state };
+  state.favoriteData = createUsersObjectsRefs(state, favoriteData);
+  dispatch({ type: 'SET_REDUX_STATE', data: state });
 }
 
-function setChatData(chatData) {
+
+function setChatData(dispatch, store, chatData) {
   let state = store.getState();
-  state.chatData = chatData;
-  return { type: 'SET_REDUX_STATE', data: state };
+  state.chatData = createUsersObjectsRefs(state, chatData);
+  dispatch({ type: 'SET_REDUX_STATE', data: state });
 }
 
-function setApiToken(apiToken) {
+function deleteUser(dispatch, store, user) {
+  let state = store.getState();
+  let { favoritesData, localData, searchData, usersObjects } = state;
+  let { fid, lid, sid, cid, uid } = {
+    fid: favoritesData.indexOf(user),
+    lid: localData.indexOf(user),
+    sid: searchData.indexOf(user),
+    cid: chatData.indexOf(user),
+    uid: usersObjects.indexOf(user)
+  };
+  if (fid != -1)
+    favoritesData.splice(fid, 1);
+  if (lid != -1)
+    localData.splice(lid, 1);
+  if (sid != -1)
+    searchData.splice(sid, 1);
+  if (cid != -1)
+    chatData.splice(cid, 1);
+  if (uid != -1)
+    usersObjects.splice(uid, 1);
+  dispatch({ type: 'SET_REDUX_STATE', data: state });
+}
+
+
+
+function setApiToken(dispatch, store, apiToken) {
   let state = store.getState();
   state.apiToken = apiToken;
-  return { type: 'SET_REDUX_STATE', data: state };
+  dispatch({ type: 'SET_REDUX_STATE', data: state });
 }
 
-
-
-
-function toggleFavorite(user) {
-  const state = store.getState();
-  const fav = user.fav ? false : true;
-  user.fav = fav;
-  if (fav)
-    server.get('fav/add/' + user.id);
-  else
-    server.get('fav/remove/' + user.id);
-
-  modifyUser(state, user.id, (uia) => {
-    if (uia.array === state.favoritesData) {
-      if (uia.idx == null && fav)
-        uia.array.push(user);
-      else if (uia.idx != null && !fav)
-        uia.array.splice(uia.idx, 1);
-    } else if (uia.idx != null) {
-      uia.user.fav = fav;
-    }
-  });
-
-  return { type: 'SET_REDUX_STATE', data: state };
+function saveState(dispatch, store) {
+  AsyncStorage.setItem('reduxState', JSON.stringify(store.getState()));
 }
 
-function deleteUser(user) {
-  let state = store.getState();
+async function loadStateAsync(dispatch) {
+  const reduxStateItem = await AsyncStorage.getItem('reduxState');
 
-  modifyUser(state, user.id, (uia) => {
-    if (uia.idx != null)
-      uia.array.splice(uia.idx, 1);
-  });
-
-  return { type: 'SET_REDUX_STATE', data: state };
+  if (reduxStateItem) {
+    const reduxState = JSON.parse(reduxStateItem);
+    console.debug("reduxState: ", reduxState);
+    dispatch({ type: 'SET_REDUX_STATE', data: reduxState });
+  }
 }
 
-
-function resetState() {
-  return { type: 'RESET_REDUX_STATE' };
+function clearStorage(dispatch) {
+  AsyncStorage.clear();
+  dispatch({ type: 'RESET_REDUX_STATE' });
 }
 
 export default {
-  setState,
   setUser,
   setLocalData,
   setSearchData,
   setFavoritesData,
   setChatData,
   setApiToken,
-  toggleFavorite,
-  deleteUser,
-  resetState
+  saveState,
+  loadStateAsync,
+  clearStorage,
+  deleteUser
 };

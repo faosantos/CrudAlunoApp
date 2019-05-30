@@ -1,9 +1,8 @@
 import React, { Component } from 'react';
-import { Permissions, Notifications } from 'expo';
 import { ImageBackground, Image } from 'react-native';
 import { Container, Label, Content, Form, Item, Input, Button, Text, Spinner } from 'native-base';
-import { server, sendBird } from '../../apis';
-import { showToast, storage } from '../../lib';
+import { server } from '../../apis';
+import { showToast } from '../../lib';
 
 const bkgImageSource = require('../../../assets/bkg_girls.png');
 const logoWideWhite = require('../../../assets/logo_wide_white.png');
@@ -16,37 +15,12 @@ export default class LoginScreen extends Component {
     password: ''
   }
 
-  async registerForNotifications() {
-    const { status: existingStatus } = await Permissions.getAsync(
-      Permissions.NOTIFICATIONS
-    );
-
-    let finalStatus = existingStatus;
-
-    if (existingStatus != 'granted') {
-      const { status } = await Permissions.askAsync(
-        Permissions.NOTIFICATIONS
-      )
-      finalStatus = status;
-    }
-
-    if (finalStatus != 'granted') {
-      return;
-    }
-
-    let token = await Notifications.getExpoPushTokenAsync();
-    await server.post('setExpoToken', { token: token });
-
-  }
-
   async componentWillMount() {
     const resp = await server.get('apiTokenCheck');
 
     if (resp.authenticated) {
       this.props.reduxActions.setUser(resp.user);
-      storage.saveState();
-      this.registerForNotifications();
-      await sendBird.init(resp.user);
+      this.props.reduxActions.saveState();
       return this.props.navigation.navigate('BottomTabNavigator');
     }
 
@@ -63,9 +37,7 @@ export default class LoginScreen extends Component {
     if (resp.authenticated) {
       this.props.reduxActions.setUser(resp.user);
       this.props.reduxActions.setApiToken(resp.apiToken);
-      storage.saveState();
-      this.registerForNotifications();
-      await sendBird.init(resp.user);
+      this.props.reduxActions.saveState();
       return this.props.navigation.navigate('BottomTabNavigator');
     } else if (resp.error) {
       showToast(resp.error, 'warning');

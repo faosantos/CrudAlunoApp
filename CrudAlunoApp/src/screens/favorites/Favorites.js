@@ -2,8 +2,33 @@ import React, { Component } from 'react';
 import { FlatList, View, Dimensions, RefreshControl } from 'react-native';
 import { Fab, Content, Container, Spinner, Title, Button, Text } from 'native-base';
 import theme from '../../../native-base-theme/variables/commonColor';
-import { Icon, UserCard, ErrorComponent } from '../comps'
+import { Icon, UserCard } from '../comps'
 import { server } from '../../apis';
+
+
+function ErrorComponent({ type, button, buttonAction }) {
+  let errors = {
+    NODATA: ['Você não possui nenhum favorito.'],
+    ERROR: ['Algo deu errado ao carregar esta tela.', ' tente novamente mais tarde']
+  }
+  return (
+    <View
+      style={{
+        justifyContent: 'center',
+        alignItems: 'center',
+        height: Dimensions.get('window').height - 100,
+        padding: 15
+      }}
+    >
+      <Icon name="heart-dislike" type="ionicons" style={{ fontSize: 40 }} />
+      {
+        errors[type].map((i, id) => (<Title key={id}>{i}</Title>))
+      }
+    </View>
+  )
+}
+
+
 
 export default class FavoriteScreen extends Component {
   constructor(props) {
@@ -18,13 +43,12 @@ export default class FavoriteScreen extends Component {
 
   loadFavs = async () => {
     this.setState({ refreshing: true });
-    const favorites = await server.get('favoritesFeed');
-    console.debug("favorites: ", favorites);
-    if (favorites.error) {
+    const loadFav = await server.get('favoritesFeed');
+    if (loadFav.error) {
       this.setState({ loading: false, error: true, refreshing: false });
     } else {
-      this.setState({ loading: false, error: false, refreshing: false });
-      this.props.reduxActions.setFavoritesData(favorites);
+      this.setState({ loading: false, error: false, userfavs: loadFav.favorites, refreshing: false });
+      this.props.reduxActions.setFavoritesData(loadFav.favorites);
     }
   }
 
@@ -54,7 +78,6 @@ export default class FavoriteScreen extends Component {
       <UserCard
         user={item}
         navigation={this.props.navigation}
-        toggleFavorite={this.props.reduxActions.toggleFavorite}
       />
     )
   }
@@ -74,14 +97,6 @@ export default class FavoriteScreen extends Component {
     }
   }
 
-  errorComp = () => {
-    return (
-      <ErrorComponent
-        type={this.state.error ? "ERROR" : "NOFAV"}
-      />
-    );
-  }
-
 
   renderLoading() {
     return (
@@ -96,19 +111,28 @@ export default class FavoriteScreen extends Component {
   renderContent() {
     return (
       <Container>
-        <FlatList
-          extraData={this.state}
-          ref={(ref) => this.completedFL = ref}
-          onScroll={this.onScroll}
-          scrollEventThrottle={400}
-          ListEmptyComponent={this.errorComp}
-          data={this.props.reduxStates.favoritesData}
-          renderItem={this.renderItem}
-          keyExtractor={this.keyExtractor}
-          onRefresh={this.onRefresh}
-          contentContainerStyle={{ paddingBottom: 80 }}
-          refreshing={this.state.refreshing}
-        />
+        {
+          !this.state.error ?
+            (
+              <FlatList
+                extraData={this.state}
+                ref={(ref) => this.completedFL = ref}
+                onScroll={this.onScroll}
+                scrollEventThrottle={400}
+                ListEmptyComponent={
+                  <ErrorComponent
+                    type="NODATA"
+                  />
+                }
+                data={this.props.reduxStates.favoritesData}
+                renderItem={this.renderItem}
+                keyExtractor={this.keyExtractor}
+                onRefresh={this.onRefresh}
+                contentContainerStyle={{ paddingBottom: 80 }}
+                refreshing={this.state.refreshing}
+              />
+            ) : (<ErrorComponent type="ERROR" />)
+        }
         {
           this.state.showFab && (
             <Fab

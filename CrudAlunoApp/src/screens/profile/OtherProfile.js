@@ -31,7 +31,6 @@ export default class OtherProfile extends React.PureComponent {
       user: this.props.navigation.getParam('user')
     }
   }
-
   goOn = async () => {
     showToast("Bloqueando...", 'warning')
     let user = this.state.user;
@@ -42,8 +41,6 @@ export default class OtherProfile extends React.PureComponent {
     }
     this.props.navigation.goBack();
   }
-
-
   blockUser = () => {
     Alert.alert(
       'Tem certeza?',
@@ -53,8 +50,6 @@ export default class OtherProfile extends React.PureComponent {
         { text: 'Não', style: 'cancel' }
       ])
   }
-
-
   flagUser = () => {
     const BUTTONS = [
       'Violação dos termos',
@@ -62,31 +57,22 @@ export default class OtherProfile extends React.PureComponent {
       'Não acho que deveria estar aqui',
       'CANCELAR'
     ]
-
     ActionSheet.show({
       options: BUTTONS,
       cancelButtonIndex: 3,
       title: "Reportar abuso:"
-    }, bid => {
-      if (bid != 3) {
+    }, bid =>{
+      if(bid!=3){
         Alert.alert(
           'Abuso reportado.',
           'Gostaria de bloquear o usuário enquanto analisamos o caso?',
           [
-            { text: 'Sim', onPress: () => this.goOn() },
-            { text: 'Não', style: 'cancel' }
+            { text:'Sim', onPress: ()=> this.goOn() },
+            { text:'Não', style:'cancel' }
           ]
         )
       }
     });
-  }
-
-  toggleFavorite = () => {
-    this.props.reduxActions.toggleFavorite(this.state.user);
-  }
-
-  gotoChatMessenger = () => {
-    this.props.navigation.navigate("ChatMessenger", { toUser: this.props.user });
   }
 
   render() {
@@ -104,17 +90,14 @@ export default class OtherProfile extends React.PureComponent {
             </Row>
 
             <Row style={{ height: 'auto', flex: 0, justifyContent: 'space-between', margin: 8 }}>
-              <Button transparent onPress={this.toggleFavorite}>
-                <Icon name={this.state.user.fav ? "heart" : "heart-empty"} style={{ fontSize: 32 }} />
-              </Button>
-              <Button transparent onPress={this.gotoChatMessenger}>
+              <Button transparent>
                 <Icon name="chat" />
               </Button>
               <Button transparent onPress={this.flagUser}>
                 <Icon name="flag" />
               </Button>
               <Button transparent onPress={this.blockUser}>
-                <Icon name="block" />
+                <Icon name="block"/>
               </Button>
             </Row>
 

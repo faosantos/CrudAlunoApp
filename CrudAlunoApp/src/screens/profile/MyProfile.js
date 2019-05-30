@@ -1,5 +1,7 @@
 import React from 'react';
 
+import { AsyncStorage } from 'react-native';
+
 import {
   Container,
   Content,
@@ -19,7 +21,7 @@ import { Icon, ImageGrid, SpinnerModal } from '../comps';
 
 import theme from '../../../native-base-theme/variables/commonColor';
 
-import { showAlert, imageManager, storage } from '../../lib';
+import { showAlert, imageManager } from '../../lib';
 
 import { server } from '../../apis';
 
@@ -36,9 +38,7 @@ export default class MyProfile extends React.Component {
     }
   }
 
-  openSettings = () => {
-    this.props.navigation.navigate({ routeName: 'Settings' });
-  }
+
 
   onLogout = () => {
 
@@ -47,8 +47,7 @@ export default class MyProfile extends React.Component {
       'Logout',
       () => {
         this.setState({ loggingOut: true });
-        storage.clear();
-        this.props.reduxActions.resetState();
+        this.props.reduxActions.clearStorage();
         this.props.navigation.navigate('Auth');
       }
     );
@@ -80,7 +79,7 @@ export default class MyProfile extends React.Component {
       let user = this.props.reduxStates.user;
       user.images.push(resp.newImagePath);
       this.props.reduxActions.setUser(user);
-      storage.saveState();
+      this.props.reduxActions.saveState();
       this.setState({ keyActualize: this.state.keyActualize + 1 });
     }
   }
@@ -99,7 +98,7 @@ export default class MyProfile extends React.Component {
           let user = this.props.reduxStates.user;
           user.images = images;
           this.props.reduxActions.setUser(user);
-          storage.saveState();
+          this.props.reduxActions.saveState();
           this.setState({ images });
           this.setState({ keyActualize: this.state.keyActualize + 1 });
         }
@@ -112,11 +111,12 @@ export default class MyProfile extends React.Component {
     if (resp.error) {
       showAlert(resp.error);
     } else {
-      const avatar = resp.newImagePath;
-      const user = this.props.reduxStates.user;
+      let avatar = resp.newImagePath;
+      let user = this.props.reduxStates.user;
+      let act = this.props.reduxActions;
       user.avatar = avatar;
-      this.props.reduxActions.setUser(user);
-      storage.saveState();
+      act.setUser(user);
+      act.saveState();
     }
   }
 
@@ -154,7 +154,7 @@ export default class MyProfile extends React.Component {
               <Button transparent onPress={this.addImageToGallery}>
                 <Icon name="camera" />
               </Button>
-              <Button transparent onPress={this.openSettings}>
+              <Button transparent>
                 <Icon name="settings" />
               </Button>
               <Button transparent onPress={this.onLogout}>

@@ -22,10 +22,13 @@
 // });
 
 
+
 import React from 'react';
+import { AsyncStorage } from 'react-native';
 import { Root as NBRoot, StyleProvider } from 'native-base';
 import { Font, ScreenOrientation } from 'expo';
 import { Provider as ReduxProvider } from 'react-redux';
+import { store, connect, states, actions } from './src/redux';
 
 import Ionicons from '@expo/vector-icons/Ionicons';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
@@ -35,8 +38,6 @@ import getTheme from './native-base-theme/components';
 import theme from './native-base-theme/variables/commonColor';
 
 import AppContainer from './src/screens';
-import { store, connect, states, actions } from './src/redux';
-import { storage } from './src/lib';
 
 
 class App extends React.Component {
@@ -56,9 +57,8 @@ class App extends React.Component {
       });
 
       await ScreenOrientation.allowAsync(ScreenOrientation.Orientation.PORTRAIT);
-      // storage.clear();
-      const state = await storage.loadStateAsync();
-      this.props.reduxActions.setState(state);
+      //await AsyncStorage.clear();
+      await this.props.reduxActions.loadStateAsync();
 
       this.setState({ loading: false });
     } catch (error) {
@@ -94,6 +94,9 @@ export default class Root extends React.Component {
     );
   }
 }
+
+
+
 
 
 

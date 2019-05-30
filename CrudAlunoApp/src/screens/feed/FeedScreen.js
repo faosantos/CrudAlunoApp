@@ -7,11 +7,14 @@ import {
   Content,
   Fab,
   View,
-  Spinner
+  Spinner,
+  Text,
+  Subtitle,
+  Button
 } from 'native-base';
 
 import theme from '../../../native-base-theme/variables/commonColor';
-import { Icon, UserCard, SearchBar, ErrorComponent } from '../comps'
+import { Icon, UserCard, SearchBar } from '../comps'
 import { server } from '../../apis';
 import { geocode, showAlert } from '../../lib';
 
@@ -40,9 +43,8 @@ export default class FeedScreen extends React.Component {
   init = async () => {
     this.setState(this.initState);
     const location = await geocode.getCurrentPositionAsync();
-    console.debug("LOCATION: ", location);
+
     if (location) {
-      await server.patch('setLocation', { lat: location.lat, lng: location.lng });
       this.fetchFeed();
     } else {
       this.setState({ noLocation: true });
@@ -115,21 +117,6 @@ export default class FeedScreen extends React.Component {
     );
   }
 
-  errorComp = () => {
-    const secondButton = this.state.noLocation
-      ? { text: 'Registrar Cidade', onPress: () => this.setState({ selectingAddress: true }) }
-      : { text: 'Buscar Por Cidade', onPress: () => this.props.navigation.navigate('Search') };
-    return (
-      <ErrorComponent
-        type={this.state.noLocation ? "NOLOC" : 'NOFEED'}
-        buttons={[
-          { text: 'Tentar Novamente', onPress: this.init },
-          secondButton
-        ]}
-      />
-    )
-  }
-
   render() {
 
     if (this.state.loading) {
@@ -153,6 +140,26 @@ export default class FeedScreen extends React.Component {
       );
     }
 
+    if (this.state.noLocation) {
+      return (
+        <Container >
+          <Content contentContainerStyle={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+            <Subtitle>Não foi possível registrar sua localização por GPS</Subtitle>
+            <Subtitle>Verifique as configurações do seu telefone</Subtitle>
+            <Button rounded onPress={this.init} style={{ margin: 4, alignSelf: 'center' }}>
+              <Text> Tentar Novamente </Text>
+            </Button>
+            <Button rounded onPress={() => this.setState({ selectingAddress: true })} style={{ margin: 4, alignSelf: 'center' }}>
+              <Text> Registrar Cidade </Text>
+            </Button>
+          </Content>
+        </Container>
+      );
+    }
+
+
+
+
     return (
       <Container>
 
@@ -160,7 +167,6 @@ export default class FeedScreen extends React.Component {
           ref={(ref) => this.completedFL = ref}
           onRefresh={this.onRefresh}
           refreshing={this.state.isRefreshing}
-          ListEmptyComponent={this.errorComp}
           onScroll={this.onScroll}
           scrollEventThrottle={400}
           data={this.props.reduxStates.localData}

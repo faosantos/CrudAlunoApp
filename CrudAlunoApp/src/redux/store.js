@@ -1,10 +1,12 @@
+import { connect } from 'react-redux';
 import { createStore } from 'redux';
-
+import actions from './actions';
 
 
 const INITIAL_STATE = {
   user: null,
   apiToken: null,
+  usersObjects: [],
   localData: [],
   searchData: [],
   favoritesData: [],
@@ -25,7 +27,23 @@ const reducer = (state = INITIAL_STATE, action) => {
 
 const store = createStore(reducer);
 
+const mapActionsToProps = (dispatch) => {
+  const reduxActions = {};
+  for (let k in actions)
+    reduxActions[k] = actions[k].bind(actions[k], dispatch, store);
+  return { reduxActions };
+}
+
+const mapStatesToProps = (state) => {
+  return {
+    reduxStates: state
+  }
+}
+
 export {
-  store
+  store,
+  connect,
+  mapActionsToProps as actions,
+  mapStatesToProps as states
 }
 

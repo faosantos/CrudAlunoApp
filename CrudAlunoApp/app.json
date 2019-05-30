@@ -23,7 +23,20 @@
       "**/*"
     ],
     "ios": {
-      "supportsTablet": true
+      "bundleIdentifier": "com.rsxglobal.club99app",
+      "supportsTablet": true,
+      "infoPlist": {
+        "NSPhotoLibraryAddUsageDescription": "O 99Club usa sua câmera e sua biblioteca de fotos para você enviar fotos para o seu perfil.",
+        "NSPhotoLibraryUsageDescription": "O 99Club usa sua câmera e sua biblioteca de fotos para você enviar fotos para o seu perfil.",
+        "NSLocationWhenInUseUsageDescription": "O 99Club usa sua localização para popular o seu Feed e de pessoas do seu interesse.",
+        "NSCameraUsageDescription": "O 99Club usa sua câmera e sua biblioteca de fotos para você enviar fotos para o seu perfil.",
+        "NSCalendarsUsageDescription": "O 99Club usa seu calendário para registrar sua data de nascimento."
+    },
+      "buildNumber": "5.0.0"
+    },
+    "android": {
+      "package": "com.rsxglobal.club99app",
+      "versionCode": 60
     }
   }
 }

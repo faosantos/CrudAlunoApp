@@ -1,14 +1,12 @@
 import fetchAux from './fetchAux';
-import { store } from '../redux/store';
+import { store } from '../redux';
 
 const SERVER_URL = {
-  local: "http://127.0.0.1:8000",
-  testApp: "http://192.168.15.10:8003",
-  fernando: "http://192.168.15.10:8002",
-  casa: "http://192.168.1.6:8000"
-}['testApp'];
-
-const SERVER_API = `${SERVER_URL}/api`;
+  local: "http://127.0.0.1:8000/api",
+  casa: "http://192.168.1.6:8003/api",
+  trampo: "http://192.168.0.11:8002/api",
+  fernando: "http://192.168.0.11:8001/api"
+}['fernando'];
 
 async function requester(endpoint, params = null, method = 'GET') {
   console.debug(`SERVER ${method} REQUEST: ${endpoint}`);
@@ -16,7 +14,7 @@ async function requester(endpoint, params = null, method = 'GET') {
   const apiToken = store.getState().apiToken;
 
   const resp = await fetchAux[method.toLowerCase()](
-    SERVER_API,
+    SERVER_URL,
     endpoint,
     params,
     apiToken
@@ -45,7 +43,6 @@ function del(endpoint, params = null) {
 
 
 export default {
-  get, post, patch, del,
-  SERVER_URL, SERVER_API
+  get, post, patch, del
 }
 
