@@ -12,6 +12,7 @@ class LoginScreen extends Component {
         if(auth.access_token === '') {
             return (
             <View style={styles.container}>
+                <Text style={styles.Text}> Testando o LOGIN </Text>
                 <Field style={styles.input} autoCapitalize="none" placeholder="Email" component={TInput} name={'email'} />
                 <Field style={styles.input} autoCapitalize="none" placeholder="Password" secureTextEntry={true} component={TInput} name={'password'} />
                 <Button
@@ -59,5 +60,16 @@ const styles = StyleSheet.create({
         borderBottomColor:'#236CF5',
         borderColor:'gray',
         margin:10
+    },
+    Text:{
+        paddingTop:20,
+    paddingBottom:20,
+    color:'#fff',
+    textAlign:'center',
+    backgroundColor:'#228b22',
+    borderRadius: 35,
+    borderWidth: 1,
+    borderColor: '#fff' 
+
     }
 })

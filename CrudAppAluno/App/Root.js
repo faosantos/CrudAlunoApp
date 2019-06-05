@@ -8,6 +8,9 @@ export default class Root extends Component {
             <View style={styles.container}>
                 <Login />
             </View>
+            // {/* <ImageBackground source={...} style={{width: '100%', height: '100%'}}>
+            //      <Text>Inside</Text>
+            // </ImageBackground> */}
             )
     }
 }
@@ -15,7 +18,7 @@ export default class Root extends Component {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#DDDDDD',
+        backgroundColor: '#00bfff',
         alignItems:'center',
         justifyContent:'center'
     }
