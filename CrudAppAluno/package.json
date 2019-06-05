@@ -8,11 +8,13 @@
   },
   "dependencies": {
     "expo": "^32.0.0",
+    "immutable": "^4.0.0-rc.12",
     "react": "16.5.0",
     "react-native": "https://github.com/expo/react-native/archive/sdk-32.0.0.tar.gz",
     "react-native-navigation": "^2.21.0",
     "react-redux": "^7.0.3",
-    "redux-persist": "^5.10.0"
+    "redux-persist": "^5.9.1",
+    "redux-persist-transform-immutable": "^5.0.0"
   },
   "devDependencies": {
     "babel-preset-expo": "^5.0.0"
